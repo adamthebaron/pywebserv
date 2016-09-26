@@ -24,11 +24,16 @@ def servinit(port, root):
 	sock.listen(1)
 	print("socket initialized")
 	while True:
-		# do stuff
+		conn, addr = sock.accept()
+		message = conn.recv(2048)
+		resp = handlecode(message.decode('UTF-8'))
+		conn.send(bytes(resp, 'UTF-8'))
+		conn.close()
 	sock.shutdown(socket.SHUT_RDWR)
 	sock.close()
 
+def parseheader(req):
+	# parse the header here
+
 def handlecode(code):
 	# handle HTTP codes here
-
-
