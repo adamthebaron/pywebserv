@@ -69,6 +69,9 @@ def handlecode(req):
 	header = parseheader(req)
 	for h,v in header.items():
 		print("{} => {}".format(h,v))
+		
+	if code is "GET":
+	    
     
 	
 def main(argv):
@@ -77,8 +80,8 @@ def main(argv):
 	sock.listen(1)
 	while True:
 		conn, addr = sock.accept()
-		message = conn.recv(2048)
-		resp = handlecode(message.decode('UTF-8'))
+		msg = conn.recv(2048)
+		resp = handlecode(msg.decode('UTF-8'))
 		conn.send(bytes(resp, 'UTF-8'))
 		conn.close()
 	sock.shutdown(socket.SHUT_RDWR)
