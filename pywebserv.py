@@ -16,7 +16,7 @@ content = {
 	'js':   'application/x-javascript',
 	'jpg':  'image/jpeg',
 	'gif':  'image/gif',
-	'png':  'image/png' 
+	'png':  'image/png'
 }
 
 resp = {
@@ -30,6 +30,8 @@ headers = [
 	"Host",
 	"If-Modified-Since"
 ]
+
+format = "%a, %d %b %Y %H:%M:%S %Z"
 
 def usage():
 	print("pywebserv -h -p port -r root")
@@ -65,7 +67,6 @@ def parseheader(req):
 		if curline == '\r':
 			break
 		curheader = curline.partition(':')
-		# python use your string and easy to use syntax powers
 		header[curheader[0].lower()] = curheader[2].strip()
 	return header
 
@@ -74,7 +75,15 @@ def handlereq(req):
 	header = parseheader(req)
 	for h,v in header.items():
 		print("{} => {}".format(h,v))
-	if header 
+	if header == "GET":
+		response = ""
+	try:
+		file = "{}{}".format(root, reqfile)
+		with open(file) as f:
+			response = respheader + f.read()
+
+	except IOError:
+		response = resp['404']
 
 def main(argv):
 	port, root = getopts(argv)
@@ -88,6 +97,6 @@ def main(argv):
 		conn.close()
 	sock.shutdown(socket.SHUT_RDWR)
 	sock.close()
-    
+
 if __name__ == "__main__":
 	main(sys.argv)
