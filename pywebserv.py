@@ -26,6 +26,11 @@ resp = {
 	'405': 'Method Not Allowed'
 }
 
+headers = [
+	"Host",
+	"If-Modified-Since"
+]
+
 def usage():
 	print("pywebserv -h -p port -r root")
 	print("default port is 43500")
@@ -69,8 +74,7 @@ def handlereq(req):
 	header = parseheader(req)
 	for h,v in header.items():
 		print("{} => {}".format(h,v))
-	if code is "GET":
-
+	if header 
 
 def main(argv):
 	port, root = getopts(argv)
