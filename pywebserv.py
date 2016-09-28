@@ -59,21 +59,19 @@ def parseheader(req):
 	for curline in req.split('\n')[1:]:
 		if curline == '\r':
 			break
-		header = curline.partition(':')
+		curheader = curline.partition(':')
 		# python use your string and easy to use syntax powers
-		headers[header[0].lower()] = header[2].strip()
-	return headers
+		header[curheader[0].lower()] = curheader[2].strip()
+	return header
 
-def handlecode(req):
+def handlereq(req):
 	code = req.split('\n')[0]
 	header = parseheader(req)
 	for h,v in header.items():
 		print("{} => {}".format(h,v))
-		
 	if code is "GET":
-	    
-    
-	
+
+
 def main(argv):
 	port, root = getopts(argv)
 	sock = servinit(port, root)
@@ -81,7 +79,7 @@ def main(argv):
 	while True:
 		conn, addr = sock.accept()
 		msg = conn.recv(2048)
-		resp = handlecode(msg.decode('UTF-8'))
+		resp = handlereq(msg.decode('UTF-8'))
 		conn.send(bytes(resp, 'UTF-8'))
 		conn.close()
 	sock.shutdown(socket.SHUT_RDWR)
