@@ -19,13 +19,6 @@ content = {
 	'png':  'image/png'
 }
 
-resp = {
-	'200': 'OK',
-	'304': 'Not Modified',
-	'404': 'Not Found',
-	'405': 'Method Not Allowed'
-}
-
 headers = [
 	"Host",
 	"If-Modified-Since"
@@ -86,6 +79,7 @@ def handlereq(req, root):
 			if headertime > filetime:
 				response = "HTTP/1.1 304 Not Modified"
 		with open(file) as f:
+			print(f.read())
 			response = "HTTP/1.1 200 OK\n" + f.read()
 	except IOError:
 		response = "HTTP/1.1 404 File Not Found"
