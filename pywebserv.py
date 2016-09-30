@@ -60,6 +60,7 @@ def servinit(port, root):
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.bind(('',port))
 	print("socket initialized")
+	return sock
 
 def parseheader(req):
 	headers = {}
@@ -67,23 +68,27 @@ def parseheader(req):
 		if curline == '\r':
 			break
 		curheader = curline.partition(':')
-		header[curheader[0].lower()] = curheader[2].strip()
-	return header
+		headers[curheader[0].lower()] = curheader[2].strip()
+	return headers
 
-def handlereq(req):
+def handlereq(req, root):
 	code = req.split('\n')[0]
 	header = parseheader(req)
 	for h,v in header.items():
 		print("{} => {}".format(h,v))
-	if header == "GET":
-		response = ""
+	if code != "GET":
+		response = "HTTP/1.1 405 Method Not Allowed"
 	try:
 		file = "{}{}".format(root, reqfile)
+		if "If-Modified-Since" in header:
+			headertime = datetime.datetime.strptime(header["if-modified-since"])
+			filetime = datetime.datetime(os.getmtime(file))
+			if headertime > filetime:
+				response = "HTTP/1.1 304 Not Modified"
 		with open(file) as f:
 			response = respheader + f.read()
-
 	except IOError:
-		response = resp['404']
+		response = "HTTP/1.1 404 File Not Found"
 
 def main(argv):
 	port, root = getopts(argv)
@@ -92,7 +97,7 @@ def main(argv):
 	while True:
 		conn, addr = sock.accept()
 		msg = conn.recv(2048)
-		resp = handlereq(msg.decode('UTF-8'))
+		resp = handlereq(msg.decode('UTF-8'), root)
 		conn.send(bytes(resp, 'UTF-8'))
 		conn.close()
 	sock.shutdown(socket.SHUT_RDWR)
