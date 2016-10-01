@@ -72,18 +72,18 @@ def handlereq(req, root):
 	if code != "GET":
 		response = "HTTP/1.1 405 Method Not Allowed"
 	try:
-		file = "{}{}".format(root, req)
+		reqfile = "{}{}".format(root, req)
 		if "If-Modified-Since" in headers:
 			headertime = datetime.datetime.strptime(headers["if-modified-since"])
 			filetime = datetime.datetime(os.getmtime(file))
 			if headertime > filetime:
 				response = "HTTP/1.1 304 Not Modified"
-		with open(file) as f:
+		with open(reqfile) as f:
 			print(f.read())
 			response = "HTTP/1.1 200 OK\n" + f.read()
 	except IOError:
 		response = "HTTP/1.1 404 File Not Found"
-	return response
+	return response + "\n"
 
 def main(argv):
 	port, root = getopts(argv)
@@ -93,9 +93,9 @@ def main(argv):
 		conn, addr = sock.accept()
 		msg = conn.recv(2048)
 		resp = handlereq(msg.decode('UTF-8'), root)
+		print(resp)
 		conn.send(bytes(resp, 'UTF-8'))
-		#conn.close()
-	conn.close()
+		conn.close()
 	sock.shutdown(socket.SHUT_RDWR)
 	sock.close()
 
