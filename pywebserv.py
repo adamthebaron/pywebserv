@@ -105,11 +105,11 @@ def handlereq(req, root):
 			if headertime > filetime:
 				response = "HTTP/1.1 304 Not Modified\n" + formatdate()
 		with open(reqfile) as f:
-			response = "HTTP/1.1 200 OK\n" + formatdate() + ctype + f.read()
+			respheader = "HTTP/1.1 200 OK\n" + formatdate() + ctype
+			response = bytes(respheader, 'UTF-8') + f.read()
 	except IOError:
 		response = "HTTP/1.1 404 File Not Found\n" + formatdate()
-	# Return properly formatted time after HTTP code, not after data
-	return response + "\n\n"
+	return response + "\n\n", mimetype
 
 def main(argv):
 	port, root = getopts(argv)
@@ -118,11 +118,11 @@ def main(argv):
 	while True:
 		conn, addr = sock.accept()
 		msg = conn.recv(2048)
-		resp = handlereq(msg.decode('UTF-8'), root)
+		resp, mimetype = handlereq(msg.decode('UTF-8'), root)
 		print("resp start")
 		print(resp)
 		print("resp end")
-		conn.send(bytes(resp, 'UTF-8'))
+		conn.send(resp)
 		conn.close()
 	sock.shutdown(socket.SHUT_RDWR)
 	sock.close()
