@@ -6,7 +6,7 @@
 
 import os
 import datetime
-import time
+from datetime import date
 import getopt
 import socket
 import sys
@@ -56,6 +56,9 @@ def servinit(port, root):
 	print("socket initialized")
 	return sock
 
+def formatdate():
+	return "Date: " + date.strftime(datetime.datetime.now(), format) + "\n"
+
 def parseheaders(req):
 	headers = {}
 	for curline in req.split('\n')[1:]:
@@ -74,7 +77,7 @@ def handlereq(req, root):
 	for h,v in headers.items():
 		print("{} => {}".format(h,v))
 	if code != "GET":
-		response = "HTTP/1.1 405 Method Not Allowed"
+		response = "HTTP/1.1 405 Method Not Allowed\n" + formatdate()
 	try:
 		reqfile = root + code.split()[1]
 		print("reqfile is")
@@ -84,13 +87,13 @@ def handlereq(req, root):
 			headertime = datetime.datetime.strptime(headers["if-modified-since"])
 			filetime = datetime.datetime(os.getmtime(reqfile))
 			if headertime > filetime:
-				response = "HTTP/1.1 304 Not Modified"
+				response = "HTTP/1.1 304 Not Modified\n" + formatdate()
 		with open(reqfile) as f:
-			response = "HTTP/1.1 200 OK\n" + f.read()
+			response = "HTTP/1.1 200 OK\n" + formatdate() + f.read()
 	except IOError:
-		response = "HTTP/1.1 404 File Not Found"
+		response = "HTTP/1.1 404 File Not Found\n" + formatdate()
 	# Return properly formatted time after HTTP code, not after data
-	return response + "Date: " + time.strftime(format) + "\n\n"
+	return response + "\n\n"
 
 def main(argv):
 	port, root = getopts(argv)
