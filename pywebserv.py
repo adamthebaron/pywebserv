@@ -66,13 +66,19 @@ def parseheaders(req):
 
 def handlereq(req, root):
 	code = req.split('\n')[0]
+	print("code start")
+	print(code)
+	print("code end")
 	headers = parseheaders(req)
 	for h,v in headers.items():
 		print("{} => {}".format(h,v))
 	if code != "GET":
 		response = "HTTP/1.1 405 Method Not Allowed"
 	try:
-		reqfile = "{}{}".format(root, req)
+		reqfile = root + code.split()[1]
+		print("reqfile is")
+		print(reqfile)
+		print("reqfile end")
 		if "If-Modified-Since" in headers:
 			headertime = datetime.datetime.strptime(headers["if-modified-since"])
 			filetime = datetime.datetime(os.getmtime(reqfile))
