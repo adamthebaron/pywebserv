@@ -79,7 +79,10 @@ def handlereq(req, root):
 	if code != "GET":
 		response = "HTTP/1.1 405 Method Not Allowed\n" + formatdate()
 	try:
-		reqfile = root + code.split()[1]
+		for file in code.split():
+			if(file.startswith("/")):
+				reqfile = root + file
+				break
 		print("reqfile is")
 		print(reqfile)
 		print("reqfile end")
