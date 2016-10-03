@@ -6,6 +6,7 @@
 
 import os
 import datetime
+import time
 import getopt
 import socket
 import sys
@@ -85,11 +86,11 @@ def handlereq(req, root):
 			if headertime > filetime:
 				response = "HTTP/1.1 304 Not Modified"
 		with open(reqfile) as f:
-			print(f.read())
 			response = "HTTP/1.1 200 OK\n" + f.read()
 	except IOError:
 		response = "HTTP/1.1 404 File Not Found"
-	return response + "\n"
+	# Return properly formatted time after HTTP code, not after data
+	return response + "Date: " + time.strftime(format) + "\n\n"
 
 def main(argv):
 	port, root = getopts(argv)
@@ -99,7 +100,9 @@ def main(argv):
 		conn, addr = sock.accept()
 		msg = conn.recv(2048)
 		resp = handlereq(msg.decode('UTF-8'), root)
+		print("resp start")
 		print(resp)
+		print("resp end")
 		conn.send(bytes(resp, 'UTF-8'))
 		conn.close()
 	sock.shutdown(socket.SHUT_RDWR)
