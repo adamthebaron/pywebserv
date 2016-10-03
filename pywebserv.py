@@ -33,7 +33,7 @@ def usage():
 
 def getopts(argv):
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hp:s:")
+		opts, args = getopt.getopt(sys.argv[1:], "hp:r:")
 	except getopt.GetoptError:
 		usage()
 		sys.exit()
@@ -75,7 +75,7 @@ def handlereq(req, root):
 		reqfile = "{}{}".format(root, req)
 		if "If-Modified-Since" in headers:
 			headertime = datetime.datetime.strptime(headers["if-modified-since"])
-			filetime = datetime.datetime(os.getmtime(file))
+			filetime = datetime.datetime(os.getmtime(reqfile))
 			if headertime > filetime:
 				response = "HTTP/1.1 304 Not Modified"
 		with open(reqfile) as f:
