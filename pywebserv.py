@@ -86,13 +86,26 @@ def handlereq(req, root):
 		print("reqfile is")
 		print(reqfile)
 		print("reqfile end")
+		if(reqfile.endswith("html")):
+			mimetype = content["html"]
+		elif(reqfile.endswith("css")):
+			mimetype = content["css"]
+		elif(reqfile.endswith("gif")):
+			mimetype = content["gif"]
+		elif(reqfile.endswith("png")):
+			mimetype = content["png"]
+		elif(reqfile.endswith("jpg") or reqfile.endswith("jpeg")):
+			mimetype = content["jpg"]
+		elif(reqfile.endswith("js")):
+			mimetype = content["js"]
+		ctype = "Content-Type: " + mimetype + "\n"
 		if "If-Modified-Since" in headers:
 			headertime = datetime.datetime.strptime(headers["if-modified-since"])
 			filetime = datetime.datetime(os.getmtime(reqfile))
 			if headertime > filetime:
 				response = "HTTP/1.1 304 Not Modified\n" + formatdate()
 		with open(reqfile) as f:
-			response = "HTTP/1.1 200 OK\n" + formatdate() + f.read()
+			response = "HTTP/1.1 200 OK\n" + formatdate() + ctype + f.read()
 	except IOError:
 		response = "HTTP/1.1 404 File Not Found\n" + formatdate()
 	# Return properly formatted time after HTTP code, not after data
