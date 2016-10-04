@@ -106,7 +106,7 @@ def handlereq(req, root):
 				response = "HTTP/1.1 304 Not Modified\n" + formatdate()
 		with open(reqfile) as f:
 			respheader = "HTTP/1.1 200 OK\n" + formatdate() + ctype
-			response = bytes(respheader, 'UTF-8') + f.read()
+			response = respheader + f.read()
 	except IOError:
 		response = "HTTP/1.1 404 File Not Found\n" + formatdate()
 	return response + "\n\n", mimetype
