@@ -109,7 +109,7 @@ def handlereq(req, root):
 			return bytes(respheader, 'UTF-8') + f.read(), mimetype
 	except IOError:
 		response = "HTTP/1.1 404 File Not Found\n" + formatdate()
-	return response + "\n\n", mimetype
+	return bytes(response + "\n\n", 'UTF-8'), mimetype
 
 def main(argv):
 	port, root = getopts(argv)
