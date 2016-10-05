@@ -104,9 +104,9 @@ def handlereq(req, root):
 			filetime = datetime.datetime(os.getmtime(reqfile))
 			if headertime > filetime:
 				response = "HTTP/1.1 304 Not Modified\n" + formatdate()
-		with open(reqfile) as f:
-			respheader = "HTTP/1.1 200 OK\n" + formatdate() + ctype
-			response = respheader + f.read()
+		with open(reqfile, 'rb') as f:
+			respheader = "HTTP/1.1 200 OK\n" + formatdate() + ctype + mimetype + "\n\n"
+			return bytes(respheader, 'UTF-8') + f.read(), mimetype
 	except IOError:
 		response = "HTTP/1.1 404 File Not Found\n" + formatdate()
 	return response + "\n\n", mimetype
