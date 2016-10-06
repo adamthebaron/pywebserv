@@ -26,6 +26,7 @@ headers = [
 ]
 
 format = "%a, %d %b %Y %H:%M:%S %Z"
+timeformat = '%a, %d %b %Y %H:%M:%S'
 
 def usage():
 	print("pywebserv -h -p port -r root")
@@ -69,6 +70,7 @@ def parseheaders(req):
 	return headers
 
 def handlereq(req, root):
+	global mimetype
 	code = req.split('\n')[0]
 	print("code start")
 	print(code)
@@ -99,17 +101,18 @@ def handlereq(req, root):
 		elif(reqfile.endswith("js")):
 			mimetype = content["js"]
 		ctype = "Content-Type: " + mimetype + "\n"
+		contentlength = "Content-Length: " + str(os.path.getsize(reqfile)) + "\n"
 		if "If-Modified-Since" in headers:
 			headertime = datetime.datetime.strptime(headers["if-modified-since"])
 			filetime = datetime.datetime(os.getmtime(reqfile))
 			if headertime > filetime:
 				response = "HTTP/1.1 304 Not Modified\n" + formatdate()
 		with open(reqfile, 'rb') as f:
-			respheader = "HTTP/1.1 200 OK\n" + formatdate() + ctype + mimetype + "\n\n"
-			return bytes(respheader, 'UTF-8') + f.read(), mimetype
+			respheader = "HTTP/1.1 200 OK\n" + formatdate() + ctype + contentlength + "\n\n"
+			return bytes(respheader, 'UTF-8') + f.read()
 	except IOError:
-		response = "HTTP/1.1 404 File Not Found\n" + formatdate()
-	return bytes(response + "\n\n", 'UTF-8'), mimetype
+		respheader = "HTTP/1.1 404 File Not Found\n" + "Date: " + date.strftime(datetime.datetime.now(), timeformat) + "\n\n"
+		return bytes(respheader, 'UTF-8')
 
 def main(argv):
 	port, root = getopts(argv)
@@ -118,7 +121,7 @@ def main(argv):
 	while True:
 		conn, addr = sock.accept()
 		msg = conn.recv(2048)
-		resp, mimetype = handlereq(msg.decode('UTF-8'), root)
+		resp = handlereq(msg.decode('UTF-8'), root)
 		print("resp start")
 		print(resp)
 		print("resp end")
